@@ -1,0 +1,45 @@
+name: Publish KONTAIRE Preview
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download latest built preview artifact
+        env:
+          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-a884-8210-8cf6-14436fbf3442/raw?se=2026-09-04T15%3A10%3A40Z&sp=r&sv=2026-02-06&sr=b&scid=6552ec05-2e88-5f92-9084-4c0d17e90a68&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-04T03%3A05%3A45Z&ske=2026-09-05T03%3A05%3A45Z&sks=b&skv=2026-02-06&sig=owsOvZeHVr%2BT1%2BnoF4kMxdkrIM%2B94nt9wNCGHqHbPbQ%3D"
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 3 "$ARTIFACT_URL" -o build.zip
+          mkdir unpack site
+          unzip -q build.zip -d unpack
+          tar -xf unpack/artifact.tar -C site
+
+      - name: Adapt build for KONTAIRE-preview path
+        run: |
+          set -euo pipefail
+          sed -i 's#/KONTAIRE/#/KONTAIRE-preview/#g' site/index.html site/404.html site/_expo/static/js/web/*.js
+          touch site/.nojekyll
+          rm -f site/metadata.json
+
+      - name: Publish built files to gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd site
+          git init
+          git checkout -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Publish KONTAIRE preview"
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git push --force origin gh-pages
