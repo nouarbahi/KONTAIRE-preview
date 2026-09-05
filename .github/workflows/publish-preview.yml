@@ -17,7 +17,7 @@ jobs:
 
       - name: Download latest built preview artifact
         env:
-          ARTIFACT_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-e070-81f4-9ed9-1eb4dadf3a46/raw?se=2026-09-05T15%3A50%3A15Z&sp=r&sv=2026-02-06&sr=b&scid=13ba0184-538f-5b61-9416-c66670eb2f02&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-05T08%3A30%3A53Z&ske=2026-09-06T08%3A30%3A53Z&sks=b&skv=2026-02-06&sig=o3%2BheDzSDWF/3Qy7EQgDVo1IuMFcbFWFFRqEl1v7E3s%3D"
+          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-1f84-8210-9760-55c957fa0dd8/raw?se=2026-09-05T16%3A06%3A47Z&sp=r&sv=2026-02-06&sr=b&scid=f6f8c09d-48ee-5896-8f26-583c4f653239&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-04T23%3A25%3A10Z&ske=2026-09-05T23%3A25%3A10Z&sks=b&skv=2026-02-06&sig=//MAnkhS9gjm8kabj%2B8GVrdcXBT9jbjd%2BKU8CgFGwvQ%3D"
         run: |
           set -euo pipefail
           curl -L --fail --retry 3 "$ARTIFACT_URL" -o build.zip
@@ -60,6 +60,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Publish KONTAIRE preview with DZD roaming range validation"
+          git commit -m "Publish KONTAIRE preview with vehicle selfie registration"
           git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin gh-pages
