@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <title>إيصال رحلة KONTAIRE</title>
+  <style>
+    :root{color-scheme:dark;--bg:#000;--card:#111;--line:#2b2b2b;--green:#8cff00;--muted:#aaa;--text:#fff}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Sans Arabic",sans-serif;min-height:100vh;padding:20px}
+    .wrap{max-width:520px;margin:0 auto}.brand{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--green);padding:10px 0 14px;margin-bottom:18px}
+    .brand h1{font-size:25px;margin:0}.brand small{color:var(--muted)}.badge{color:var(--green);font-weight:800;font-size:14px}
+    .hero{background:#102600;border:1px solid var(--green);border-radius:20px;text-align:center;padding:18px;margin-bottom:12px}.hero .fare{font-size:42px;color:var(--green);font-weight:900}.hero .caption{font-size:13px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:4px 14px}.row{display:flex;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.label{color:var(--muted);font-size:13px}.value{font-weight:800;text-align:left}.final{color:var(--green)}
+    .note{color:var(--muted);font-size:11px;line-height:1.8;text-align:center;margin:18px 12px}.actions{display:flex;gap:10px;margin-top:16px}.btn{flex:1;border:1px solid var(--green);background:transparent;color:var(--green);border-radius:14px;padding:13px;font-weight:800;cursor:pointer}.btn.primary{background:var(--green);color:#000}
+    .invalid{border:1px solid #ff5a5a;background:#260606;border-radius:16px;padding:16px;text-align:center;color:#ffd2d2}.deleted{border-color:var(--green);background:#102600;color:var(--green)}
+    @media print{body{padding:0}.actions{display:none}.wrap{max-width:none}.note{color:#555}:root{color-scheme:light;--bg:#fff;--card:#fff;--line:#ddd;--text:#000;--muted:#555}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="brand"><div><h1>كونتار</h1><small>عداد الرحلات</small></div><div class="badge">إيصال إلكتروني</div></header>
+    <div id="content"></div>
+    <div class="actions" id="actions"><button class="btn primary" onclick="window.print()">طباعة / حفظ PDF</button><button class="btn" onclick="expireReceipt()">خروج</button></div>
+    <p class="note" id="note">هذا الإيصال يعرض بيانات الرحلة المسجلة في تطبيق KONTAIRE وقت إنشائه ولا يتضمن بيانات شخصية للسائق أو الراكب.</p>
+  </main>
+  <script>
+    const STORAGE_KEY='kontaire-current-receipt-v1';
+    const esc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+    const params=new URLSearchParams(location.search);
+    const incoming={
+      trip:params.get('trip'),
+      date:params.get('date'),
+      distanceFare:params.get('distanceFare'),
+      waiting:params.get('waiting'),
+      total:params.get('total')
+    };
+
+    let data=null;
+    if(incoming.trip&&incoming.total){
+      data=incoming;
+      try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify(data));}catch{}
+      history.replaceState(null,'',location.pathname);
+    }else if(!params.has('expired')){
+      try{
+        const saved=sessionStorage.getItem(STORAGE_KEY);
+        if(saved)data=JSON.parse(saved);
+      }catch{}
+    }
+
+    function render(){
+      const required=data&&data.trip&&data.total;
+      const rows=required ? [
+        ['رقم الرحلة',data.trip],
+        ['التاريخ',data.date],
+        ['أجرة المسافة الإجمالية',data.distanceFare],
+        ['وقت الانتظار',data.waiting],
+        ['الإجمالي النهائي',data.total,true]
+      ].filter(r=>r[1]) : [];
+
+      document.getElementById('content').innerHTML=required
+        ? `<section class="hero"><div class="fare">${esc(data.total)}</div><div class="caption">الإجمالي النهائي</div></section><section class="card">${rows.map(r=>`<div class="row"><span class="label">${esc(r[0])}</span><span class="value ${r[2]?'final':''}">${esc(r[1])}</span></div>`).join('')}</section>`
+        : `<div class="invalid ${params.has('expired')?'deleted':''}">${params.has('expired')?'تم إغلاق الإيصال وحذفه من هذه الجلسة.':'رابط الإيصال غير مكتمل أو غير صالح.'}</div>`;
+      document.getElementById('actions').style.display=required?'flex':'none';
+    }
+
+    function expireReceipt(){
+      try{sessionStorage.removeItem(STORAGE_KEY);}catch{}
+      data=null;
+      document.getElementById('content').innerHTML='<div class="invalid deleted">تم إغلاق الإيصال وحذفه من هذه الجلسة.</div>';
+      document.getElementById('actions').style.display='none';
+      document.getElementById('note').textContent='لم تعد بيانات هذا الإيصال متاحة في هذه الجلسة.';
+      history.replaceState(null,'',location.pathname+'?expired=1');
+      setTimeout(()=>{try{window.close();}catch{}},100);
+    }
+
+    render();
+  </script>
+</body>
+</html>
