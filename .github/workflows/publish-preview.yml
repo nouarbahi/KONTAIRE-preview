@@ -17,7 +17,7 @@ jobs:
 
       - name: Download latest built preview artifact
         env:
-          ARTIFACT_URL: "https://sdmntprnortheu.oaiusercontent.com/files/00000000-2a2c-81f4-b290-006db69af1cc/raw?se=2026-09-28T12%3A09%3A34Z&sp=r&sv=2026-02-06&sr=b&scid=01a0e7d5-7a0a-7ad3-b0f3-ba67eba8a19c&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-28T08%3A26%3A40Z&ske=2026-09-29T08%3A26%3A40Z&sks=b&skv=2026-02-06&sig=Xs5MvRRLcgs1trS1b//3oYLL6/evjiYNgKP1P6CnDp8%3D"
+          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-b1e0-8210-8dd9-39b9de17dd56/raw?se=2026-09-28T14%3A02%3A28Z&sp=r&sv=2026-02-06&sr=b&scid=69ef9615-4bfe-5aca-b1d8-b1c3d213597f&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-28T13%3A51%3A40Z&ske=2026-09-29T13%3A51%3A40Z&sks=b&skv=2026-02-06&sig=8UKQENfYkrDxPIjIbeglYits8UFAUir3KcqIyNCrtec%3D"
         run: |
           set -euo pipefail
           curl -L --fail --retry 3 "$ARTIFACT_URL" -o build.zip
