@@ -17,7 +17,7 @@ jobs:
 
       - name: Download latest built preview artifact
         env:
-          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-9ee8-8210-98ce-4bc02893606c/raw?se=2026-09-28T18%3A44%3A05Z&sp=r&sv=2026-02-06&sr=b&scid=a9513859-1778-5016-8c58-20782123c664&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-28T16%3A06%3A08Z&ske=2026-09-29T16%3A06%3A08Z&sks=b&skv=2026-02-06&sig=yKTY6H3Ubjc2hDDtrE9Ivt4zGvafv/TVNjMc1xmYrkg%3D"
+          ARTIFACT_URL: "https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-822c-8210-95a4-07a43ab82307/raw?se=2026-10-02T20%3A02%3A28Z&sp=r&sv=2026-02-06&sr=b&scid=d0456027-01bb-558c-9ac2-923d74c3017f&skoid=5c9dda00-298b-4376-81e9-b4568c8a3c0f&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-10-02T09%3A20%3A06Z&ske=2026-10-03T09%3A20%3A06Z&sks=b&skv=2026-02-06&sig=Xds55w%2BF%2BEnK3o/xhqOYNt7elf/NzAqdR%2BsAdfI%2BF7I%3D"
         run: |
           set -euo pipefail
           curl -L --fail --retry 3 "$ARTIFACT_URL" -o build.zip
@@ -26,6 +26,17 @@ jobs:
           cp receipt.html site/receipt.html
           rm -f site/metadata.json
           touch site/.nojekyll
+
+      - name: Point build assets at KONTAIRE-preview
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          for path in Path('site').rglob('*'):
+              if not path.is_file() or path.suffix not in {'.html', '.js'}:
+                  continue
+              text = path.read_text(encoding='utf-8')
+              path.write_text(text.replace('/KONTAIRE', '/KONTAIRE-preview'), encoding='utf-8')
+          PY
 
       - name: Cache-bust published JavaScript
         run: |
